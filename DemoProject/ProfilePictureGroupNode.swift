@@ -12,6 +12,7 @@ class ProfilePictureGroupNode: ASDisplayNode {
         for profileHeadURL in profileHeadURLs {
             let profileHead = ASNetworkImageNode()
             profileHead.placeholderColor = kPlaceholderColor
+
             profileHead.URL = profileHeadURL
             profileHead.clipsToBounds = true
             profileHead.imageModificationBlock = ASImageNodeRoundBorderModificationBlock(0, nil)

@@ -26,21 +26,22 @@ class PostCellNode: ASCellNode {
     
     init(message: Message) {
         super.init()
-        //        self.message = message
+//        self.message = message
         self.message = Message.randomMessage()
         
         imageNode.clipsToBounds = true
         
         if arc4random_uniform(2) == 1 {
             imageNode.image = UIImage(named: "slide")
-            
             messageTextNode.attributedString = NSAttributedString(string: self.message.content, attributes: [NSFontAttributeName: UIFont.systemFontOfSize(14, weight: UIFontWeightSemibold), NSForegroundColorAttributeName: UIColor.whiteColor()])
+            messageTextNode.truncationAttributedString = NSAttributedString(string: "… Continue Reading", attributes: [NSFontAttributeName: UIFont.systemFontOfSize(10, weight: UIFontWeightSemibold), NSForegroundColorAttributeName: UIColor(red: 242/255, green: 242/255, blue: 242/255, alpha: 0.5)])
+            messageTextNode.maximumLineCount = 2
+
         } else {
             messageTextNode.attributedString = NSAttributedString(string: "\"\(self.message.content)\"", attributes: [NSFontAttributeName: UIFont.systemFontOfSize(16, weight: UIFontWeightSemibold), NSForegroundColorAttributeName: UIColor.darkGrayColor()])
+
         }
         messageTextNode.truncationMode = NSLineBreakMode.ByWordWrapping
-        messageTextNode.truncationAttributedString = NSAttributedString(string: "Continue Reading…", attributes: [NSFontAttributeName: UIFont.systemFontOfSize(16, weight: UIFontWeightSemibold), NSForegroundColorAttributeName: UIColor.whiteColor()])
-        messageTextNode.maximumLineCount = 2
         
         heartImageNode.image = UIImage(named: "heart")
         heartImageNode.contentMode = .ScaleAspectFill

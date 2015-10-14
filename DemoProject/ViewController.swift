@@ -1,25 +1,43 @@
-//
-//  ViewController.swift
-//  DemoProject
-//
-//  Created by Luke Parham on 10/13/15.
-//  Copyright © 2015 Luke Parham. All rights reserved.
-//
 
 import UIKit
 
 class ViewController: UIViewController {
-
+    let tableView = ASTableView()
+    var messages = [Message]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        for _ in 1...20 { messages.append(Message.randomMessage()) }
+        
+        view.backgroundColor = UIColor.whiteColor()
+        tableView.frame = view.bounds
+        tableView.asyncDataSource = self
+        tableView.asyncDelegate = self
+        
+        view.addSubview(tableView)
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
 
 }
 
+extension ViewController: ASTableViewDelegate {
+    func tableView(tableView: UITableView!, didSelectRowAtIndexPath indexPath: NSIndexPath!) {
+        
+    }
+}
+
+extension ViewController: ASTableViewDataSource {
+    func tableView(tableView: ASTableView!, nodeForRowAtIndexPath indexPath: NSIndexPath!) -> ASCellNode! {
+        let cell = PostCellNode(message: messages[indexPath.row])
+        cell.needsDivider = (indexPath.row != (messages.count - 1))
+        return cell
+    }
+    
+    func tableView(tableView: UITableView!, numberOfRowsInSection section: Int) -> Int {
+        return messages.count
+    }
+    
+    func numberOfSectionsInTableView(tableView: UITableView!) -> Int {
+        return 1
+    }
+}

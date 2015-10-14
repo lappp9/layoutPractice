@@ -83,7 +83,6 @@ class PostCellNode: ASCellNode {
     override func layoutSpecThatFits(constrainedSize: ASSizeRange) -> ASLayoutSpec! {
         profilePictureGroupNode.flexBasis = ASRelativeDimensionMakeWithPercent(1/7)
         heartImageNode.preferredFrameSize = CGSize(width: 7, height: 7)
-        divider.preferredFrameSize = needsDivider ? CGSize(width: constrainedSize.max.width - 32, height: 1) : CGSizeZero
         
         let nameAndTimeSpec = ASStackLayoutSpec(direction: .Vertical, spacing: 0, justifyContent: .Start, alignItems: .Start, children: [participantsTextNode, lastActivityTextNode])
         
@@ -116,7 +115,12 @@ class PostCellNode: ASCellNode {
         }
         
         let contentStackSpec = ASStackLayoutSpec(direction: .Horizontal, spacing: 8, justifyContent: .Start, alignItems: .Start, children: [profilePictureGroupNode, nameTimeLikeContentSpec])
-        let contentPlusDivider = ASStackLayoutSpec(direction: .Vertical, spacing: 16, justifyContent: .Center, alignItems: .Center, children: [contentStackSpec, divider])
+        
+        // Devider has a static size: 100% its parent's width and 1 point height
+        divider.sizeRange = ASRelativeSizeRangeMakeWithExactRelativeSize(ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(1), ASRelativeDimensionMakeWithPoints(1)))
+        let staticDividerSpec = ASStaticLayoutSpec(children: [divider])
+        
+        let contentPlusDivider = ASStackLayoutSpec(direction: .Vertical, spacing: 16, justifyContent: .Center, alignItems: .Center, children: [contentStackSpec, staticDividerSpec])
         let insetSpec = ASInsetLayoutSpec(insets: UIEdgeInsets(top: 16, left: 16, bottom: 0, right: 16), child: contentPlusDivider)
         
         return insetSpec

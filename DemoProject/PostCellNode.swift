@@ -40,6 +40,7 @@ class PostCellNode: ASCellNode {
         }
         messageTextNode.truncationMode = NSLineBreakMode.ByWordWrapping
         messageTextNode.truncationAttributedString = NSAttributedString(string: "Continue Reading…", attributes: [NSFontAttributeName: UIFont.systemFontOfSize(16, weight: UIFontWeightSemibold), NSForegroundColorAttributeName: UIColor.whiteColor()])
+        messageTextNode.maximumLineCount = 2
         
         heartImageNode.image = UIImage(named: "heart")
         heartImageNode.contentMode = .ScaleAspectFill
@@ -63,7 +64,6 @@ class PostCellNode: ASCellNode {
         
         addSubnode(participantsTextNode)
         addSubnode(lastActivityTextNode)
-        addSubnode(messageTextNode)
         addSubnode(profilePictureGroupNode)
         addSubnode(likeTextNode)
         addSubnode(heartImageNode)
@@ -71,45 +71,51 @@ class PostCellNode: ASCellNode {
         if let _ = imageNode.image {
             addSubnode(imageNode)
         }
-        
+
+        // When image is availbale, message overlays it. So message node must be added (and therefore, rendered) after image node
+        addSubnode(messageTextNode)
+
         if needsDivider {
             addSubnode(divider)
         }
     }
     
     override func layoutSpecThatFits(constrainedSize: ASSizeRange) -> ASLayoutSpec! {
-        let preferredContentWidth = screenWidth - (screenWidth/7) - leftSpacing - rightSpacing
-        
-        profilePictureGroupNode.preferredFrameSize = CGSize(width: screenWidth/7, height: screenWidth/7)
+        profilePictureGroupNode.flexBasis = ASRelativeDimensionMakeWithPercent(1/7)
         heartImageNode.preferredFrameSize = CGSize(width: 7, height: 7)
         divider.preferredFrameSize = needsDivider ? CGSize(width: constrainedSize.max.width - 32, height: 1) : CGSizeZero
         
-        let staticSpec = ASStaticLayoutSpec(children: [profilePictureGroupNode])
-        
         let nameAndTimeSpec = ASStackLayoutSpec(direction: .Vertical, spacing: 0, justifyContent: .Start, alignItems: .Start, children: [participantsTextNode, lastActivityTextNode])
         
-        //spacer stuff
         let heartLikesSpec = ASStackLayoutSpec(direction: .Horizontal, spacing: 2, justifyContent: .Center, alignItems: .Center, children: [heartImageNode, likeTextNode])
+
         let spacer = ASLayoutSpec()
         spacer.flexGrow = true
-        let nameTimeLikeSpec = ASStackLayoutSpec(direction: .Horizontal, spacing: 16, justifyContent: .Start, alignItems: .Start, children: [nameAndTimeSpec, spacer, heartLikesSpec])
         
+        let nameTimeLikeSpec = ASStackLayoutSpec(direction: .Horizontal, spacing: 16, justifyContent: .Start, alignItems: .Center, children: [nameAndTimeSpec, spacer, heartLikesSpec])
+        nameTimeLikeSpec.alignSelf = .Stretch // Stretch this stack to fill the entire width. Thus, spacer will be asked to grow
         
         let nameTimeLikeContentSpec = ASStackLayoutSpec(direction: .Vertical, spacing: 8, justifyContent: .Start, alignItems: .Start, children: nil)
         nameTimeLikeContentSpec.flexShrink = true
         
-        if imageNode.image != nil {
-            imageNode.preferredFrameSize = CGSize(width: preferredContentWidth, height: proportionateHeightForWidth(image: imageNode.image, width: preferredContentWidth))
+        if let image = imageNode.image {
+            let reserveImageRatioSpec = ASRatioLayoutSpec(ratio: image.size.height / image.size.width, child: imageNode)
             
-            //            let background = ASBackgroundLayoutSpec(child: messageTextNode, background: imageNode)
-            //            let cover = ASOverlayLayoutSpec(child: imageNode, overlay: messageTextNode)
+            let alignedMessageSpec = ASStackLayoutSpec(direction: .Vertical, spacing: 0, justifyContent: .End, alignItems: .Start, children: [messageTextNode])
             
-            nameTimeLikeContentSpec.setChildren([nameTimeLikeSpec, imageNode])
+            // Another way to align message node
+//            messageTextNode.flexShrink = true
+//            let alignedMessageSpec = ASStackLayoutSpec(direction: .Horizontal, spacing: 0, justifyContent: .Start, alignItems: .End, children: [messageTextNode])
+            
+            let messageInsetSpec = ASInsetLayoutSpec(insets: UIEdgeInsets(top: 32, left: 16, bottom: 16, right: 32), child: alignedMessageSpec)
+            
+            let imageMessageSpec = ASOverlayLayoutSpec(child: reserveImageRatioSpec, overlay: messageInsetSpec)
+            nameTimeLikeContentSpec.setChildren([nameTimeLikeSpec, imageMessageSpec])
         } else {
             nameTimeLikeContentSpec.setChildren([nameTimeLikeSpec, messageTextNode])
         }
         
-        let contentStackSpec = ASStackLayoutSpec(direction: .Horizontal, spacing: 8, justifyContent: .Start, alignItems: .Start, children: [staticSpec, nameTimeLikeContentSpec])
+        let contentStackSpec = ASStackLayoutSpec(direction: .Horizontal, spacing: 8, justifyContent: .Start, alignItems: .Start, children: [profilePictureGroupNode, nameTimeLikeContentSpec])
         let contentPlusDivider = ASStackLayoutSpec(direction: .Vertical, spacing: 16, justifyContent: .Center, alignItems: .Center, children: [contentStackSpec, divider])
         let insetSpec = ASInsetLayoutSpec(insets: UIEdgeInsets(top: 16, left: 16, bottom: 0, right: 16), child: contentPlusDivider)
         

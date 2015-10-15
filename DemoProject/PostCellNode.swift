@@ -117,7 +117,7 @@ class PostCellNode: ASCellNode {
         
         let contentStackSpec = ASStackLayoutSpec(direction: .Horizontal, spacing: 8, justifyContent: .Start, alignItems: .Start, children: [profilePictureGroupNode, nameTimeLikeContentSpec])
         
-        // Devider has a static size: 100% its parent's width and 1 point height
+        // Divider has a static size: 100% its parent's width and 1 point height
         divider.sizeRange = ASRelativeSizeRangeMakeWithExactRelativeSize(ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(1), ASRelativeDimensionMakeWithPoints(1)))
         let staticDividerSpec = ASStaticLayoutSpec(children: [divider])
         

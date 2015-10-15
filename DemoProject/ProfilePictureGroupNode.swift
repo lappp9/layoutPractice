@@ -16,6 +16,7 @@ class ProfilePictureGroupNode: ASDisplayNode {
             profileHead.URL = profileHeadURL
             profileHead.clipsToBounds = true
             profileHead.imageModificationBlock = ASImageNodeRoundBorderModificationBlock(0, nil)
+            profileHead.defaultImage = UIImage(named: "lightGrayPlaceholder")
             addSubnode(profileHead)
             profileHeads.append(profileHead)
         }
